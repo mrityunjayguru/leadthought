@@ -1,0 +1,279 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/manrope";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-heading: 'Manrope Variable', 'Manrope', sans-serif;
+  --font-sans: 'Manrope Variable', 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-manrope: 'Manrope Variable', 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Standard shadcn tokens */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Sidebar tokens */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* ThoughtLead Dashboard Specific Brand Colors */
+  --color-terracotta: var(--terracotta);
+  --color-terracotta-foreground: var(--terracotta-foreground);
+  --color-terracotta-subtle: var(--terracotta-subtle);
+  --color-terracotta-border: var(--terracotta-border);
+
+  --color-teal: var(--teal);
+  --color-teal-foreground: var(--teal-foreground);
+  --color-teal-hover: var(--teal-hover);
+  --color-teal-subtle: var(--teal-subtle);
+
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
+  --color-gold-subtle: var(--gold-subtle);
+
+  --color-purple: var(--purple);
+  --color-purple-foreground: var(--purple-foreground);
+
+  /* Border radius */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  /* Canvas & Base */
+  --background: #f5f3f0;
+  --foreground: #1e1e1e;
+
+  /* Cards & Surface */
+  --card: #ffffff;
+  --card-foreground: #1e1e1e;
+  --popover: #ffffff;
+  --popover-foreground: #1e1e1e;
+
+  /* Primary: ThoughtLead Terracotta Brand (#A83B00) */
+  --primary: #a83b00;
+  --primary-foreground: #ffffff;
+
+  /* Secondary: Soft warm neutral */
+  --secondary: #f6f3f0;
+  --secondary-foreground: #1e1e1e;
+
+  /* Muted: Subtle backgrounds & warm gray secondary text */
+  --muted: #f6f3f0;
+  --muted-foreground: #7D7D7D;
+
+  /* Accent: Terracotta Light Tint (for active filter pills / tags / highlights) */
+  --accent: #fdf2ec;
+  --accent-foreground: #a83b00;
+
+  /* Destructive */
+  --destructive: #dc2626;
+
+  /* Borders & Inputs */
+  --border: #f1ecea;
+  --input: #e6dfdb;
+  --ring: #a83b00;
+
+  /* Sidebar Tokens */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1e1e1e;
+  --sidebar-primary: #a83b00;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #fcf8f6;
+  --sidebar-accent-foreground: #a83b00;
+  --sidebar-border: #f1ecea;
+  --sidebar-ring: #a83b00;
+
+  /* ThoughtLead Palette Extensions */
+  --terracotta: #a83b00;
+  --terracotta-foreground: #ffffff;
+  --terracotta-subtle: #fdf2ec;
+  --terracotta-border: #fad9cd;
+
+  --teal: #397a72;
+  --teal-foreground: #ffffff;
+  --teal-hover: #2e655e;
+  --teal-subtle: #eef5f4;
+
+  --gold: #b08d3d;
+  --gold-foreground: #6b5324;
+  --gold-subtle: #fbf5eb;
+
+  --purple: #806a9e;
+  --purple-foreground: #ffffff;
+
+  --radius: 0.5rem;
+}
+
+.dark {
+  /* Canvas & Base */
+  --background: #151311;
+  --foreground: #f5f2ed;
+
+  /* Cards & Surface */
+  --card: #1c1a17;
+  --card-foreground: #f5f2ed;
+  --popover: #1c1a17;
+  --popover-foreground: #f5f2ed;
+
+  /* Primary: Terracotta (vibrant contrast for dark mode) */
+  --primary: #c85317;
+  --primary-foreground: #ffffff;
+
+  /* Secondary */
+  --secondary: #272320;
+  --secondary-foreground: #f5f2ed;
+
+  /* Muted */
+  --muted: #272320;
+  --muted-foreground: #a39c95;
+
+  /* Accent */
+  --accent: #2e2019;
+  --accent-foreground: #f79668;
+
+  /* Destructive */
+  --destructive: #ef4444;
+
+  /* Borders & Inputs */
+  --border: #2d2824;
+  --input: #38322d;
+  --ring: #c85317;
+
+  /* Sidebar Tokens */
+  --sidebar: #181614;
+  --sidebar-foreground: #f5f2ed;
+  --sidebar-primary: #c85317;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #272320;
+  --sidebar-accent-foreground: #f79668;
+  --sidebar-border: #2d2824;
+  --sidebar-ring: #c85317;
+
+  /* ThoughtLead Palette Extensions */
+  --terracotta: #c85317;
+  --terracotta-foreground: #ffffff;
+  --terracotta-subtle: #2e2019;
+  --terracotta-border: #4d2b1b;
+
+  --teal: #438a81;
+  --teal-foreground: #ffffff;
+  --teal-hover: #4fa096;
+  --teal-subtle: #192a27;
+
+  --gold: #d4a94b;
+  --gold-foreground: #fff4d9;
+  --gold-subtle: #2d2413;
+
+  --purple: #9b84bb;
+  --purple-foreground: #ffffff;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    scrollbar-width: thin;
+    scrollbar-color: #d5ccc5 transparent;
+  }
+  html {
+    @apply font-sans;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Modern thin & soft scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #d6cdc6;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #baa99e;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Button & Icon spring pop micro-interactions */
+@keyframes button-pop {
+  0% {
+    transform: scale(0.92);
+  }
+  40% {
+    transform: scale(1.05);
+  }
+  75% {
+    transform: scale(0.98);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes icon-pop {
+  0% {
+    transform: scale(0.75) rotate(-6deg);
+  }
+  50% {
+    transform: scale(1.28) rotate(4deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.animate-pop {
+  animation: button-pop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.animate-icon-pop {
+  animation: icon-pop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
