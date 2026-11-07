@@ -25,8 +25,8 @@ export interface EventListToolbarProps {
 export function EventListToolbar({
   activeTab: externalTab,
   onTabChange,
-  currentCount = '312',
-  totalCount = '1,046',
+  currentCount = 54,
+  totalCount = 54,
   sortBy: externalSort,
   sortOptions,
   onSortChange,

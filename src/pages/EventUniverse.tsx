@@ -290,7 +290,7 @@ export function EventUniverse() {
           activeTab={activeTab}
           onTabChange={handleTabChange}
           currentCount={sortedEvents.length}
-          totalCount="1,046"
+          totalCount={events.length}
           sortBy={sortBy}
           onSortChange={setSortBy}
           className="flex-1"
