@@ -1,12 +1,7 @@
-import { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useRef} from 'react'
 import { MenuIcon, ChevronDownIcon } from '@/components/icons'
 import { GlassTooltip } from '@/components/ui/glass-tooltip'
 import defaultAvatar from '@/assets/icons/avatar.jpg'
-import SettingsIcon from '@/assets/icons/profile/setting.svg'
-import ProfileIcon from '@/assets/icons/profile/user.svg'
-
-
 
 export interface UserProfile {
   name: string
