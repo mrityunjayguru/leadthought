@@ -64,7 +64,7 @@ export function FilterDropdown({
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`w-full h-[36px] flex items-center justify-between gap-1.5 px-3 rounded-lg border border-[#e6dfdb] bg-white text-left text-[12.5px] text-[#1e1e1e] transition-all hover:border-[#d5cdc6] focus:outline-none focus:border-[#a83b00] focus:ring-1 focus:ring-[#a83b00]/20 cursor-pointer ${
+        className={`w-full h-[36px] flex items-center justify-between gap-1.5 px-3 rounded-lg border border-[#e6dfdb] bg-white text-left text-[14px] text-[#1e1e1e] transition-all hover:border-[#d5cdc6] focus:outline-none focus:border-[#a83b00] focus:ring-1 focus:ring-[#a83b00]/20 cursor-pointer ${
           isOpen ? 'border-[#a83b00] ring-1 ring-[#a83b00]/20' : ''
         } ${className}`}
       >
@@ -100,12 +100,12 @@ export function FilterDropdown({
                 }}
                 className={`w-full text-left px-3 py-2 text-[12px] transition-colors cursor-pointer flex items-center justify-between ${
                   isSelected
-                    ? 'bg-[#fdf2ec] text-[#a83b00] font-semibold'
+                    ? 'font-bold'
                     : 'text-[#1e1e1e] hover:bg-[#faf7f4]'
                 }`}
               >
                 <span className="truncate">{opt.label}</span>
-                {isSelected && <span className="text-[#a83b00] text-xs font-bold">✓</span>}
+                
               </button>
             )
           })}

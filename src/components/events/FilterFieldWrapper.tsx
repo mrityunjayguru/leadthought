@@ -18,7 +18,7 @@ export function FilterFieldWrapper({
 }: FilterFieldWrapperProps) {
   return (
     <div className={`flex flex-col gap-1.5 min-w-0 ${className}`}>
-      <label className={`text-[12px] font-normal text-[#8a847f] tracking-[-0.01em] select-none ${labelClassName}`}>
+      <label className={`text-[13px] font-regular text-[#7D7D7D] tracking-[-0.01em] select-none ${labelClassName}`}>
         {label}
       </label>
       {children}

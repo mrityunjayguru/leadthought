@@ -19,9 +19,8 @@ export function EventCardSkeleton({ className = '' }: EventCardSkeletonProps) {
 
         {/* Right Column Skeleton */}
         <div className="flex-1 min-w-0 space-y-1.5">
-          {/* Action Indicators (Follow & Compare) aligned right */}
+          {/* Action Indicators (Compare) aligned right */}
           <div className="flex items-center justify-end gap-3 mb-1">
-            <div className="w-14 h-3 bg-[#f2ece8] rounded-[3px]" />
             <div className="w-14 h-3 bg-[#f2ece8] rounded-[3px]" />
           </div>
 
@@ -73,7 +72,8 @@ export function EventCardSkeleton({ className = '' }: EventCardSkeletonProps) {
       </div>
 
       {/* Action Buttons */}
-      <div className="grid grid-cols-2 gap-2.5 pt-1">
+      <div className="grid grid-cols-3 gap-2 pt-1">
+        <div className="h-[36px] bg-[#f2ece8] rounded-[6px]" />
         <div className="h-[36px] bg-[#f2ece8] rounded-[6px]" />
         <div className="h-[36px] bg-[#e4ece9] rounded-[6px]" />
       </div>

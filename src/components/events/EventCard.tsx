@@ -1,12 +1,14 @@
 import { useState } from 'react'
+import { Tooltip } from 'radix-ui'
 import type { EventItem } from '@/types/events'
-import { PlusSquareIcon } from 'lucide-react'
-import { EventUniverseIcon, TickIcon } from '../icons'
+import plusSquareIcon from '../../assets/icons/event/pluse.svg'
+import { EventUniverseIcon, FollowIcon, FollowingIcon, TickIcon } from '../icons'
 import { CustomerEvaluation } from './CustomerEvaluation'
 
 export interface EventCardProps {
   event: EventItem
   showEvaluation?: boolean
+  isCompareLimitReached?: boolean
   onFollowToggle?: (eventId: string, isFollowing: boolean) => void
   onCompareToggle?: (eventId: string, isCompared: boolean) => void
   onMyEventsToggle?: (eventId: string, isInMyEvents: boolean) => void
@@ -22,22 +24,6 @@ function LocationPinIcon() {
   )
 }
 
-function BookmarkHollowIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-    </svg>
-  )
-}
-
-function BookmarkFilledIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1">
-      <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-    </svg>
-  )
-}
-
 function AttendeesMetricIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -49,6 +35,7 @@ function AttendeesMetricIcon() {
 
   )
 }
+
 
 function AudienceLevelMetricIcon() {
   return (
@@ -74,111 +61,128 @@ function IndustryMetricIcon() {
 export function EventCard({
   event,
   showEvaluation = false,
+  isCompareLimitReached = false,
   onFollowToggle,
   onCompareToggle,
   onMyEventsToggle,
   onViewDetails,
   className = '',
 }: EventCardProps) {
-  const [isFollowing, setIsFollowing] = useState(event.isFollowing ?? false)
-  const [isCompared, setIsCompared] = useState(event.isCompared ?? false)
-  const [isInMyEvents, setIsInMyEvents] = useState(event.isInMyEvents ?? false)
-  const [followPopping, setFollowPopping] = useState(false)
+  const [internalFollowing, setInternalFollowing] = useState(event.isFollowing ?? false)
+  const [internalCompared, setInternalCompared] = useState(event.isCompared ?? false)
+  const [internalInMyEvents, setInternalInMyEvents] = useState(event.isInMyEvents ?? false)
+
+  const isFollowing = event.isFollowing !== undefined ? event.isFollowing : internalFollowing
+  const isCompared = event.isCompared !== undefined ? event.isCompared : internalCompared
+  const isInMyEvents = event.isInMyEvents !== undefined ? event.isInMyEvents : internalInMyEvents
+
+  // When 3 places are full in compare, all unselected compare checkboxes are disabled
+  const isCompareDisabled = !isCompared && isCompareLimitReached
 
   const handleFollowClick = () => {
     const next = !isFollowing
-    setIsFollowing(next)
-    setFollowPopping(true)
-    setTimeout(() => setFollowPopping(false), 350)
+    setInternalFollowing(next)
     onFollowToggle?.(event.id, next)
   }
 
   const handleCompareClick = () => {
+    if (isCompareDisabled) return
     const next = !isCompared
-    setIsCompared(next)
+    setInternalCompared(next)
     onCompareToggle?.(event.id, next)
   }
 
   const handleMyEventsClick = () => {
     const next = !isInMyEvents
-    setIsInMyEvents(next)
+    setInternalInMyEvents(next)
     onMyEventsToggle?.(event.id, next)
   }
 
   return (
     <article
-      className={`bg-white rounded-[10px] border border-white p-4 sm:p-4.5 flex flex-col justify-between space-y-3.5 select-none transition-shadow hover:shadow-xs ${className}`}
+      className={`bg-white rounded-[10px] border-[1.5px] ${
+        isCompared ? 'border-[#806A9E] ' : 'border-white'
+      } p-3 sm:p-3 flex flex-col justify-between space-y-3.5 select-none transition-all hover:shadow-xs ${className}`}
     >
       {/* Top Header Section */}
       <div className="flex items-start gap-3">
         {/* Date Badge */}
-        <div className="w-[42px] mt-3 shrink-0 rounded-[4px] overflow-hidden text-center bg-background">
-          <div className="bg-[#A83B00] text-white text-[9.5px] font-semibold uppercase tracking-wider py-0.5 leading-none">
+        <div className="w-[45px] mt-4 shrink-0 rounded-[4px] overflow-hidden text-center bg-background">
+          <div className="bg-[#A83B00] text-white text-[9.5px] font-semibold tracking-wider py-0.5 leading-none">
             {event.month}
           </div>
           <div className="py-1 px-0.5 flex flex-col items-center justify-center">
-            <span className="font-bold text-[13px] text-[#1e1e1e] leading-tight">
+            <span className="font-bold text-[14px] text-[#1e1e1e] leading-tight">
               {event.dates}
             </span>
-            <span className="text-[8px] text-[#7D7D7D] leading-none">
+            <span className="text-[10px] text-[#7D7D7D] leading-none">
               {event.year}
             </span>
           </div>
         </div>
 
-        {/* Content on the right: Top row has Following & Compare, then Title, then Location */}
+        {/* Content on the right: Top row has Compare, then Title, then Location */}
         <div className="flex-1 min-w-0">
-          {/* Top Row: Following & Compare aligned to top-right */}
+          {/* Top Row: Compare aligned to top-right */}
           <div className="flex items-center justify-end gap-3 mb-0.5">
-            {/* Follow / Following */}
-            <button
-              type="button"
-              onClick={handleFollowClick}
-              className={`flex items-center gap-1.5 text-[13px]  transition-all duration-150 active:scale-90 cursor-pointer ${
-                isFollowing
-                  ? 'text-[#6D5B97] hover:text-[#58477f]'
-                  : 'text-[#6D5B97] hover:text-[#58477f]'
-              }`}
-            >
-              <span className={`inline-flex items-center justify-center transition-transform ${followPopping ? 'animate-icon-pop' : ''}`}>
-                {isFollowing ? <BookmarkFilledIcon /> : <BookmarkHollowIcon />}
-              </span>
-              <span>{isFollowing ? 'Following' : 'Follow'}</span>
-            </button>
-
             {/* Compare */}
-            <button
-              type="button"
-              onClick={handleCompareClick}
-              className={`flex items-center gap-1.5 text-[13px] transition-colors cursor-pointer ${
-                isFollowing
-                  ? 'text-[#6D5B97] hover:text-[#58477f]'
-                  : 'text-[#6D5B97] hover:text-[#58477f]'
-              }`}
-            >
-              <span
-                className={`w-[14px] h-[14px] rounded-[3px] border flex items-center justify-center transition-colors ${
-                  isCompared
-                    ? 'bg-[#8A79A9] border-[#8A79A9] text-white'
-                    : isFollowing
-                      ? 'border-[#8A79A9] bg-white'
-                      : 'border-[#8A79A9] bg-white'
-                }`}
+            {isCompareDisabled ? (
+              <Tooltip.Provider delayDuration={50}>
+                <Tooltip.Root>
+                  <Tooltip.Trigger asChild>
+                    <span className="inline-flex cursor-pointer">
+                      <button
+                        type="button"
+                        onClick={handleCompareClick}
+                        className="flex items-center gap-1.5 text-[13px] text-[#C5BFBA] cursor-pointer select-none"
+                        aria-disabled="true"
+                        aria-label="Compare limit reached. Remove one to add another"
+                      >
+                        <span className="w-[14px] h-[14px] rounded-[3px] border border-[#D5CFCA] bg-white flex items-center justify-center transition-colors" />
+                        <span>Compare</span>
+                      </button>
+                    </span>
+                  </Tooltip.Trigger>
+                  <Tooltip.Portal>
+                    <Tooltip.Content
+                      side="bottom"
+                      align="start"
+                      sideOffset={4}
+                      className="z-50 px-3 py-1.5 rounded-[8px] bg-[#F4F5F6] text-[#6B7280] text-[12.5px] font-normal tracking-normal shadow-[0_2px_10px_rgba(0,0,0,0.08)] border border-gray-200/60 select-none animate-in fade-in-0 duration-150"
+                    >
+                      Remove one to add another
+                    </Tooltip.Content>
+                  </Tooltip.Portal>
+                </Tooltip.Root>
+              </Tooltip.Provider>
+            ) : (
+              <button
+                type="button"
+                onClick={handleCompareClick}
+                className="flex items-center gap-1.5 text-[13px] text-[#6D5B97] hover:text-[#58477f] transition-colors cursor-pointer select-none"
               >
-                {isCompared && (
-                  <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                )}
-              </span>
-              <span>Compare</span>
-            </button>
+                <span
+                  className={`w-[14px] h-[14px] rounded-[3px] border flex items-center justify-center transition-colors ${
+                    isCompared
+                      ? 'bg-[#8A79A9] border-[#8A79A9] text-white'
+                      : 'border-[#8A79A9] bg-white'
+                  }`}
+                >
+                  {isCompared && (
+                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
+                </span>
+                <span>Compare</span>
+              </button>
+            )}
           </div>
 
           {/* Event Title */}
           <h3
             onClick={() => onViewDetails?.(event.id)}
-            className="text-[14.5px] sm:text-[15px] font-medium text-[#1e1e1e] leading-[1.25] tracking-[-0.015em] hover:text-[#A83B00] transition-colors cursor-pointer truncate"
+            className="text-[14.5px] mt-3 sm:text-[15px] font-medium text-[#1e1e1e] leading-[1.25] tracking-[-0.015em] hover:text-[#A83B00] transition-colors cursor-pointer truncate"
             title={event.title}
           >
             {event.title}
@@ -233,13 +237,13 @@ export function EventCard({
         {event.tags.map((tag) => (
           <span
             key={tag}
-            className="text-[11px] text-[#55504c] bg-background border border-backround px-2 py-0.5 rounded-full leading-tight"
+            className="text-[11px] text-[#7D7D7D] bg-background border border-[#D9D9D9] px-2 py-0.5 rounded-full leading-tight font-regular"
           >
             {tag}
           </span>
         ))}
         {event.overflowTagsCount && (
-          <span className="text-[11px] text-[#7D7D7D] bg-background border border-background px-1.5 py-0.5 rounded-full leading-tight font-medium">
+          <span className="text-[11px] text-[#7D7D7D] bg-background border border-[#D9D9D9] px-1.5 py-0.5 rounded-full leading-tight font-regular">
             +{event.overflowTagsCount}
           </span>
         )}
@@ -269,32 +273,53 @@ export function EventCard({
       )}
 
       {/* Action Buttons Row */}
-      <div className="grid grid-cols-2 gap-2.5 pt-0.5">
+      <div className="grid grid-cols-3 gap-2 pt-0.5">
         <button
           type="button"
           onClick={() => onViewDetails?.(event.id)}
-          className="w-full border border-[#B86030] text-[#A83B00] bg-white hover:bg-[#FAF6F3] rounded-[6px] py-1.5 px-3 text-[12.5px] font-medium transition-colors text-center cursor-pointer"
+          className="w-full border border-[#B86030] text-[#A83B00] bg-white hover:bg-[#FAF6F3] rounded-[6px] py-1.5 px-2 text-[12px] font-medium transition-colors text-center cursor-pointer truncate"
         >
           View Details
         </button>
+
+        {isFollowing ? (
+          <button
+            type="button"
+            onClick={handleFollowClick}
+            className="w-full border border-[#806A9E] text-[#806A9E] bg-[#F3EFF8] hover:bg-[#F2F7F6] rounded-[6px] py-1.5 px-2 text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+          >
+            <FollowingIcon size={14} className="shrink-0" />
+            <span>Following</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={handleFollowClick}
+                        className="w-full bg-[white] text-[#806A9E] border border-[#806A9E] rounded-[6px] py-1.5 px-2 text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+
+          >
+            <FollowIcon size={14} className="shrink-0" />
+            <span>Follow</span>
+          </button>
+        )}
 
         {isInMyEvents ? (
           <button
             type="button"
             onClick={handleMyEventsClick}
-            className="w-full bg-[#397A72] text-white hover:bg-[#43877E] rounded-[6px] py-1.5 px-3 text-[12.5px] font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+            className="w-full bg-[#397A72] text-white hover:bg-[#43877E] rounded-[6px] py-1.5 px-2 text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
           >
-            <TickIcon size={16} />
+            <TickIcon size={14} className="shrink-0" />
             <span>In My Events</span>
           </button>
         ) : (
           <button
             type="button"
             onClick={handleMyEventsClick}
-            className="w-full border border-[#397A72] text-[#397A72] bg-white hover:bg-[#F2F7F6] rounded-[6px] py-1.5 px-3 text-[12.5px] font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+            className="w-full border border-[#397A72] text-[#397A72] bg-white hover:bg-[#F2F7F6] rounded-[6px] py-1.5 px-2 text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
           >
-            <PlusSquareIcon size={16} />
-            <span>Add to My Events</span>
+            <img src={plusSquareIcon} width="14" height="14" alt="Add to My Events" className="shrink-0" />
+            <span className="truncate">Add to My Events</span>
           </button>
         )}
       </div>

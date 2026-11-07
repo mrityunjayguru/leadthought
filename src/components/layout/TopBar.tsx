@@ -1,6 +1,12 @@
+import { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { MenuIcon, ChevronDownIcon } from '@/components/icons'
 import { GlassTooltip } from '@/components/ui/glass-tooltip'
 import defaultAvatar from '@/assets/icons/avatar.jpg'
+import SettingsIcon from '@/assets/icons/profile/setting.svg'
+import ProfileIcon from '@/assets/icons/profile/user.svg'
+
+
 
 export interface UserProfile {
   name: string
@@ -29,6 +35,9 @@ export function TopBar({
   isCollapsed = false,
   className = '',
 }: TopBarProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
   return (
     <header
       className={`h-[70px] bg-white border-b border-[#f1ecea] px-6 flex items-center justify-between select-none shrink-0 ${className}`}
@@ -56,51 +65,61 @@ export function TopBar({
         </h1>
       </div>
 
-      {/* Right: User Profile Widget */}
-      <button
-        type="button"
-        className="flex items-center gap-3 py-1.5 pl-3 pr-2 transition-colors cursor-pointer group text-left"
-      >
-        <div className="hidden sm:flex flex-col items-end leading-tight">
-          <span className="text-[14px] font-medium text-[#1e1e1e] tracking-[-0.01em]">
-            {user.name}
-          </span>
-          <span className="text-[12px] text-[#b86030] tracking-[-0.005em]">
-            {user.company}
-          </span>
-        </div>
-<div className="rounded-full bg-[#fbf9f6]">
-        <div className="relative ">
-          {user.avatarUrl ? (
-            <img
-              src={user.avatarUrl}
-              alt={user.name}
-              className="w-8 h-8 rounded-full object-cover ring-1 ring-[#f1ecea]"
-              onError={(e) => {
-                // Graceful fallback to initial avatar if image fails to load
-                e.currentTarget.style.display = 'none'
-                const parent = e.currentTarget.parentElement
-                if (parent) {
-                  const fallback = parent.querySelector('.avatar-fallback')
-                  if (fallback) fallback.classList.remove('hidden')
-                }
-              }}
-            />
-          ) : null}
-          <div className="avatar-fallback hidden w-8 h-8 rounded-full bg-[#f6f3f0] text-[#a83b00] text-xs font-semibold flex items-center justify-center ring-1 ring-[#f1ecea]">
-            {user.name
-              .split(' ')
-              .map((n) => n[0])
-              .join('')}
+      {/* Right: User Profile Widget with Bubble Trigger & Dropdown */}
+      <div ref={menuRef} className="relative">
+        <button
+          type="button"
+          onClick={() => setIsOpen((prev) => !prev)}
+          className="flex items-center gap-3 py-1 pl-3 pr-0 transition-colors cursor-pointer group text-left select-none focus:outline-none"
+          aria-expanded={isOpen}
+          aria-haspopup="true"
+        >
+          {/* User Name & Company text info */}
+          <div className="hidden sm:flex flex-col items-end leading-tight">
+            <span className="text-[14px] font-semibold text-[#1e1e1e] tracking-[-0.01em]">
+              {user.name}
+            </span>
+            <span className="text-[12px] font-medium text-[#b86030] tracking-[-0.005em]">
+              {user.company}
+            </span>
           </div>
-          </div>
-        </div>
 
-        <ChevronDownIcon
-          size={14}
-          className="text-[#7D7D7D] group-hover:text-[#1e1e1e] transition-colors"
-        />
-      </button>
+          {/* Bubble containing Avatar and Chevron Down Icon */}
+          <div className="h-[40px] bg-[#F6F3F0] rounded-full pl-1 pr-2.5 flex items-center gap-2 transition-colors hover:bg-[#EFEAE4]">
+            {user.avatarUrl ? (
+              <img
+                src={user.avatarUrl}
+                alt={user.name}
+                className="w-[32px] h-[32px] rounded-full object-cover shrink-0"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none'
+                  const parent = e.currentTarget.parentElement
+                  if (parent) {
+                    const fallback = parent.querySelector('.avatar-fallback')
+                    if (fallback) fallback.classList.remove('hidden')
+                  }
+                }}
+              />
+            ) : null}
+            <div className="avatar-fallback hidden w-[32px] h-[32px] rounded-full bg-[#f6f3f0] text-[#a83b00] text-xs font-semibold flex items-center justify-center shrink-0">
+              {user.name
+                .split(' ')
+                .map((n) => n[0])
+                .join('')}
+            </div>
+
+            <ChevronDownIcon
+              size={13}
+              className={`text-[#2D2A28] transition-transform duration-200 shrink-0 ${
+                isOpen ? 'rotate-180' : ''
+              }`}
+            />
+          </div>
+        </button>
+
+        {/* Dropdown Menu */}
+        
+      </div>
     </header>
   )
 }

@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import { SegmentedTabs } from './SegmentedTabs'
-import { EventSortDropdown } from './EventSortDropdown'
+import {
+  EventSortDropdown,
+  ALL_EVENTS_SORT_OPTIONS,
+  FOLLOWING_SORT_OPTIONS,
+  type SortOptionItem,
+} from './EventSortDropdown'
 
 export interface EventListToolbarProps {
   activeTab?: 'all' | 'following'
@@ -8,7 +13,7 @@ export interface EventListToolbarProps {
   currentCount?: number | string
   totalCount?: number | string
   sortBy?: string
-  sortOptions?: string[]
+  sortOptions?: SortOptionItem[] | string[]
   onSortChange?: (sort: string) => void
   className?: string
 }
@@ -32,6 +37,10 @@ export function EventListToolbar({
 
   const currentTab = externalTab ?? internalTab
   const currentSort = externalSort ?? internalSort
+
+  const activeOptions =
+    sortOptions ??
+    (currentTab === 'following' ? FOLLOWING_SORT_OPTIONS : ALL_EVENTS_SORT_OPTIONS)
 
   const handleTabChange = (tab: 'all' | 'following') => {
     setInternalTab(tab)
@@ -59,7 +68,7 @@ export function EventListToolbar({
       {/* Right: Sort By Dropdown */}
       <EventSortDropdown
         value={currentSort}
-        options={sortOptions}
+        options={activeOptions}
         onChange={handleSortChange}
       />
     </div>

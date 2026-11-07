@@ -10,8 +10,8 @@ export interface EventFilterState {
 
 export const DEFAULT_FILTERS: EventFilterState = {
   search: '',
-  date: 'Next 12 Months',
-  region: 'North America',
+  date: 'Any',
+  region: 'Global',
   attendance: 'Any',
   audienceLevel: 'Any',
   topicsAndTags: '',
@@ -19,47 +19,43 @@ export const DEFAULT_FILTERS: EventFilterState = {
 }
 
 export const DATE_OPTIONS = [
-  'Next 12 Months',
-  'Next 3 Months',
-  'Next 6 Months',
-  'Q1 2027',
-  'Q2 2027',
-  'Q3 2027',
-  'Q4 2027',
   'Any',
+  'Next 90 Days',
+  'Next 6 Months',
+  'Next 12 Months',
+  'Custom Range',
 ]
 
 export const REGION_OPTIONS = [
+  'Global',
   'North America',
-  'Latin America',
+  'South America',
   'Europe',
-  'Asia Pacific',
-  'Middle East & Africa',
-  'Global / Virtual',
-  'Any',
+  'Asia-Pacific',
+  'Central America & Caribbean',
+  'Middle East',
+  'Africa',
 ]
 
 export const ATTENDANCE_OPTIONS = [
   'Any',
-  '1,000 - 3,000',
-  '3,000 - 5,000',
-  '5,000 - 10,000',
+  'Under 1,000',
+  '1,000–2,499',
+  '2,500–4,999',
+  '5,000–9,999',
   '10,000+',
 ]
 
 export const AUDIENCE_LEVEL_OPTIONS = [
   'Any',
-  'C-Suite / Executive',
-  'Senior Leadership',
-  'Director / Manager',
-  'Mid-level',
+  'Executive',
+  'Senior',
+  'Mid-Level',
   'Mixed',
 ]
 
 export const CFP_OPTIONS = [
   'Any',
-  'Open Now',
-  'Closing Soon',
-  'Upcoming',
-  'Unknown',
+  'Open',
+  'Closing Within 30 Days',
 ]

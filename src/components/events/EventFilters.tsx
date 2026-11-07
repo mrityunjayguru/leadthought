@@ -55,7 +55,7 @@ export function EventFilters({
     const cleared: EventFilterState = {
       search: '',
       date: 'Any',
-      region: 'Any',
+      region: 'Global',
       attendance: 'Any',
       audienceLevel: 'Any',
       topicsAndTags: '',
@@ -68,6 +68,8 @@ export function EventFilters({
   const removePill = (field: keyof EventFilterState) => {
     if (field === 'search' || field === 'topicsAndTags') {
       updateField(field, '')
+    } else if (field === 'region') {
+      updateField(field, 'Global')
     } else {
       updateField(field, 'Any')
     }
@@ -75,7 +77,7 @@ export function EventFilters({
 
   // Reactive active pills list computed from current filters
   const activePills: { field: keyof EventFilterState; label: string }[] = []
-  if (currentFilters.region && currentFilters.region !== 'Any') {
+  if (currentFilters.region && currentFilters.region !== 'Any' && currentFilters.region !== 'Global') {
     activePills.push({ field: 'region', label: `Region: ${currentFilters.region}` })
   }
   if (currentFilters.date && currentFilters.date !== 'Any') {

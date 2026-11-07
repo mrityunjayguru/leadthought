@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { ThoughtLeadLogo, ThoughtLeadLogoCollapsed } from '@/components/icons'
 import { GlassTooltip } from '@/components/ui/glass-tooltip'
-import { MAIN_NAV_ITEMS, SECONDARY_NAV_ITEMS } from './nav-items'
+import { MAIN_NAV_ITEMS, SECONDARY_NAV_ITEMS, isNavItemActive } from './nav-items'
 
 export interface SidebarProps {
   className?: string
@@ -11,7 +11,6 @@ export interface SidebarProps {
 
 export function Sidebar({ className = '', isCollapsed = false, onCloseMobile }: SidebarProps) {
   const location = useLocation()
-  const currentPath = location.pathname === '/' ? '/event-universe' : location.pathname
 
   return (
     <aside
@@ -63,7 +62,7 @@ export function Sidebar({ className = '', isCollapsed = false, onCloseMobile }: 
         >
           {MAIN_NAV_ITEMS.map((item) => {
             const Icon = item.icon
-            const isActive = currentPath === item.path
+            const isActive = isNavItemActive(item.path, location.pathname, location.hash)
 
             return (
               <GlassTooltip
@@ -82,12 +81,12 @@ export function Sidebar({ className = '', isCollapsed = false, onCloseMobile }: 
                     isCollapsed
                       ? `relative w-11 h-11 flex items-center justify-center rounded-2xl ${
                           isActive
-                            ? 'bg-background text-[#a83b00] shadow-xs'
+                            ? 'bg-[#F5F3F0] text-[#a83b00] shadow-xs'
                             : 'text-[#2d2b29] hover:bg-[#faf7f4] hover:text-[#1e1e1e]'
                         }`
                       : `w-full flex items-center justify-between px-3.5 py-2.5 rounded-full text-[14px] font-medium ${
                           isActive
-                            ? 'bg-background text-[#1e1e1e]'
+                            ? 'bg-[#F5F3F0] text-[#1e1e1e]'
                             : 'text-[#2d2b29] hover:bg-[#faf7f4] hover:text-[#1e1e1e]'
                         }`
                   }`}
@@ -151,7 +150,7 @@ export function Sidebar({ className = '', isCollapsed = false, onCloseMobile }: 
         >
           {SECONDARY_NAV_ITEMS.map((item) => {
             const Icon = item.icon
-            const isActive = currentPath === item.path
+            const isActive = isNavItemActive(item.path, location.pathname, location.hash)
 
             return (
               <GlassTooltip
@@ -170,12 +169,12 @@ export function Sidebar({ className = '', isCollapsed = false, onCloseMobile }: 
                     isCollapsed
                       ? `relative w-11 h-11 flex items-center justify-center rounded-2xl ${
                           isActive
-                            ? 'bg-background text-[#a83b00] shadow-xs'
+                            ? 'bg-[#F5F3F0] text-[#a83b00] shadow-xs'
                             : 'text-[#2d2b29] hover:bg-[#faf7f4] hover:text-[#1e1e1e]'
                         }`
                       : `w-full flex items-center gap-3 px-3.5 py-2.5 rounded-full text-[14px] font-medium ${
                           isActive
-                            ? 'bg-background text-[#1e1e1e]'
+                            ? 'bg-[#F5F3F0] text-[#1e1e1e]'
                             : 'text-[#2d2b29] hover:bg-[#faf7f4] hover:text-[#1e1e1e]'
                         }`
                   }`}

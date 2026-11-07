@@ -7,6 +7,7 @@ export interface EventGridProps {
   isLoading?: boolean
   skeletonCount?: number
   showEvaluation?: boolean
+  isCompareLimitReached?: boolean
   onFollowToggle?: (eventId: string, isFollowing: boolean) => void
   onCompareToggle?: (eventId: string, isCompared: boolean) => void
   onMyEventsToggle?: (eventId: string, isInMyEvents: boolean) => void
@@ -23,6 +24,7 @@ export function EventGrid({
   isLoading = false,
   skeletonCount = 6,
   showEvaluation = false,
+  isCompareLimitReached = false,
   onFollowToggle,
   onCompareToggle,
   onMyEventsToggle,
@@ -60,6 +62,7 @@ export function EventGrid({
           key={event.id}
           event={event}
           showEvaluation={showEvaluation}
+          isCompareLimitReached={isCompareLimitReached}
           onFollowToggle={onFollowToggle}
           onCompareToggle={onCompareToggle}
           onMyEventsToggle={onMyEventsToggle}

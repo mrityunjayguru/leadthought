@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
-import { ALL_NAV_ITEMS } from './nav-items'
+import { ALL_NAV_ITEMS, isNavItemActive } from './nav-items'
 import { TopBar } from './TopBar'
 
 export interface AppLayoutProps {
@@ -18,8 +18,9 @@ export function AppLayout({ children }: AppLayoutProps) {
   })
   const location = useLocation()
 
-  const currentPath = location.pathname === '/' ? '/event-universe' : location.pathname
-  const currentItem = ALL_NAV_ITEMS.find((item) => item.path === currentPath)
+  const currentItem = ALL_NAV_ITEMS.find((item) =>
+    isNavItemActive(item.path, location.pathname, location.hash, ALL_NAV_ITEMS)
+  )
   const pageTitle = currentItem ? currentItem.label : 'Event Universe'
 
   const handleToggleSidebar = () => {
@@ -39,7 +40,10 @@ export function AppLayout({ children }: AppLayoutProps) {
   }
 
   return (
-    <div className="h-screen w-full bg-background flex text-[#1e1e1e] font-sans overflow-hidden">
+    <div
+      className="h-screen w-full bg-background flex text-[#1e1e1e] font-sans overflow-hidden"
+      style={{ '--sidebar-width': isCollapsed ? '72px' : '270px' } as React.CSSProperties}
+    >
       {/* Desktop Persistent Sticky Sidebar */}
       <div className="hidden lg:block shrink-0 h-screen sticky top-0 left-0 z-30 transition-[width] duration-300 ease-in-out">
         <Sidebar isCollapsed={isCollapsed} />

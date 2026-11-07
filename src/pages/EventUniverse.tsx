@@ -1,10 +1,12 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   EventUniverseHeader,
   EventFilters,
   EventListToolbar,
   EventDateDivider,
   EventGrid,
+  EventCompareBar,
+  EventPagination,
   DEFAULT_FILTERS,
   type EventFilterState,
 } from '@/components/events'
@@ -27,11 +29,22 @@ const MONTH_ORDER: Record<string, number> = {
 }
 
 export function EventUniverse() {
+  const PAGE_SIZE = 9
   const [events, setEvents] = useState<EventItem[]>(MOCK_EVENTS)
   const [activeTab, setActiveTab] = useState<'all' | 'following'>('all')
   const [filters, setFilters] = useState<EventFilterState>(DEFAULT_FILTERS)
   const [sortBy, setSortBy] = useState('Date')
   const [isLoading, setIsLoading] = useState(false)
+  const [visibleCount, setVisibleCount] = useState<number>(PAGE_SIZE)
+  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  // Reset pagination when active tab, filters, or sorting changes
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE)
+    setIsLoadingMore(false)
+    setLoadError(null)
+  }, [activeTab, filters, sortBy])
 
   // 1. Filter events based on activeTab and all filter controls
   const filteredEvents = useMemo(() => {
@@ -64,7 +77,7 @@ export function EventUniverse() {
       }
 
       // Region
-      if (filters.region && filters.region !== 'Any') {
+      if (filters.region && filters.region !== 'Any' && filters.region !== 'Global') {
         const eventRegion = event.region || 'North America'
         if (eventRegion.toLowerCase() !== filters.region.toLowerCase()) {
           return false
@@ -73,54 +86,57 @@ export function EventUniverse() {
 
       // Date / Quarter filter
       if (filters.date && filters.date !== 'Any') {
-        const eventQuarter =
-          event.quarter ||
-          (event.month === 'Jan' || event.month === 'Feb' || event.month === 'Mar'
-            ? 'Q1 2027'
-            : 'Q2 2027')
         if (
           filters.date === 'Next 12 Months' ||
           filters.date === 'Next 6 Months' ||
-          filters.date === 'Next 3 Months'
+          filters.date === 'Next 90 Days' ||
+          filters.date === 'Custom Range'
         ) {
           // In our timeline, all 2027 events are within the upcoming window
-        } else if (filters.date.startsWith('Q')) {
-          if (eventQuarter !== filters.date) {
-            return false
-          }
         }
       }
 
       // Attendance range filter
       if (filters.attendance && filters.attendance !== 'Any') {
         const count = parseInt(event.attendees.replace(/[^0-9]/g, ''), 10) || 0
-        if (filters.attendance === '1,000 - 3,000' && (count < 1000 || count > 3000)) return false
-        if (filters.attendance === '3,000 - 5,000' && (count < 3000 || count > 5000)) return false
-        if (filters.attendance === '5,000 - 10,000' && (count < 5000 || count > 10000)) return false
+        if (filters.attendance === 'Under 1,000' && count >= 1000) return false
+        if (
+          (filters.attendance === '1,000–2,499' || filters.attendance === '1,000-2,499') &&
+          (count < 1000 || count > 2499)
+        )
+          return false
+        if (
+          (filters.attendance === '2,500–4,999' || filters.attendance === '2,500-4,999') &&
+          (count < 2500 || count > 4999)
+        )
+          return false
+        if (
+          (filters.attendance === '5,000–9,999' || filters.attendance === '5,000-9,999') &&
+          (count < 5000 || count > 9999)
+        )
+          return false
         if (filters.attendance === '10,000+' && count < 10000) return false
       }
 
       // Audience level filter
       if (filters.audienceLevel && filters.audienceLevel !== 'Any') {
         const level = event.audienceLevel.toLowerCase()
-        if (filters.audienceLevel === 'C-Suite / Executive' && !level.includes('exec')) return false
-        if (filters.audienceLevel === 'Senior Leadership' && !level.includes('senior')) return false
-        if (
-          filters.audienceLevel === 'Director / Manager' &&
-          !level.includes('director') &&
-          !level.includes('manager')
-        )
-          return false
-        if (filters.audienceLevel === 'Mid-level' && !level.includes('mid')) return false
+        if (filters.audienceLevel === 'Executive' && !level.includes('exec')) return false
+        if (filters.audienceLevel === 'Senior' && !level.includes('senior')) return false
+        if (filters.audienceLevel === 'Mid-Level' && !level.includes('mid')) return false
         if (filters.audienceLevel === 'Mixed' && !level.includes('mixed')) return false
       }
 
       // CFP filter
       if (filters.cfp && filters.cfp !== 'Any') {
         const deadline = event.cfpDeadline.toLowerCase()
-        if (filters.cfp === 'Open Now' && deadline === 'unknown') return false
-        if (filters.cfp === 'Unknown' && deadline !== 'unknown') return false
-        if (filters.cfp === 'Closing Soon' && !deadline.includes('oct') && !deadline.includes('nov'))
+        if (filters.cfp === 'Open' && deadline === 'unknown') return false
+        if (
+          filters.cfp === 'Closing Within 30 Days' &&
+          !deadline.includes('oct') &&
+          !deadline.includes('nov') &&
+          !deadline.includes('closing')
+        )
           return false
       }
 
@@ -131,15 +147,33 @@ export function EventUniverse() {
   // 2. Sort filtered events
   const sortedEvents = useMemo(() => {
     const list = [...filteredEvents]
-    if (sortBy === 'Alphabetical (A-Z)') {
+    if (sortBy === 'Alphabetical (A-Z)' || sortBy === 'Event name') {
       list.sort((a, b) => a.title.localeCompare(b.title))
-    } else if (sortBy === 'Attendance (High to Low)') {
+    } else if (sortBy === 'Audience size' || sortBy === 'Attendance (High to Low)') {
       list.sort((a, b) => {
         const countA = parseInt(a.attendees.replace(/[^0-9]/g, ''), 10) || 0
         const countB = parseInt(b.attendees.replace(/[^0-9]/g, ''), 10) || 0
         return countB - countA
       })
-    } else if (sortBy === 'Date') {
+    } else if (sortBy === 'Strategic Fit') {
+      list.sort((a, b) => {
+        const fitA = parseInt(a.evaluation?.strategicFit?.replace(/[^0-9]/g, '') || '0', 10)
+        const fitB = parseInt(b.evaluation?.strategicFit?.replace(/[^0-9]/g, '') || '0', 10)
+        return fitB - fitA
+      })
+    } else if (sortBy === 'Priority') {
+      const PRIORITY_ORDER: Record<string, number> = {
+        High: 3,
+        Medium: 2,
+        Low: 1,
+      }
+      list.sort((a, b) => {
+        const pA = PRIORITY_ORDER[a.evaluation?.priority || ''] || 0
+        const pB = PRIORITY_ORDER[b.evaluation?.priority || ''] || 0
+        return pB - pA
+      })
+    } else {
+      // Default: 'Date' (Soonest first)
       list.sort((a, b) => {
         const yearDiff = parseInt(a.year, 10) - parseInt(b.year, 10)
         if (yearDiff !== 0) return yearDiff
@@ -154,10 +188,15 @@ export function EventUniverse() {
     return list
   }, [filteredEvents, sortBy])
 
-  // 3. Chronologically group displayed events by Month & Year (e.g. "Jan 2027", "Feb 2027")
+  // 3. Slice to first 9 events, then append 9 more on each Load More (no duplicated data)
+  const visibleEvents = useMemo(() => {
+    return sortedEvents.slice(0, visibleCount)
+  }, [sortedEvents, visibleCount])
+
+  // 4. Chronologically group displayed events by Month & Year (e.g. "Jan 2027", "Feb 2027")
   const groupedEvents = useMemo(() => {
     const groups: { [key: string]: EventItem[] } = {}
-    sortedEvents.forEach((event) => {
+    visibleEvents.forEach((event) => {
       const key = `${event.month} ${event.year}`
       if (!groups[key]) {
         groups[key] = []
@@ -165,10 +204,29 @@ export function EventUniverse() {
       groups[key].push(event)
     })
     return groups
-  }, [sortedEvents])
+  }, [visibleEvents])
+
+  const handleLoadMore = () => {
+    if (isLoadingMore || visibleCount >= sortedEvents.length) return
+    setIsLoadingMore(true)
+    setLoadError(null)
+
+    setTimeout(() => {
+      setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, sortedEvents.length))
+      setIsLoadingMore(false)
+    }, 750)
+  }
 
   const handleTabChange = (tab: 'all' | 'following') => {
     setActiveTab(tab)
+    if (tab === 'following') {
+      setSortBy('Priority')
+    } else {
+      setSortBy('Date')
+    }
+    setVisibleCount(PAGE_SIZE)
+    setIsLoadingMore(false)
+    setLoadError(null)
     setIsLoading(true)
     setTimeout(() => {
       setIsLoading(false)
@@ -182,10 +240,32 @@ export function EventUniverse() {
   }
 
   const handleCompareToggle = (id: string, isCompared: boolean) => {
+    if (isCompared) {
+      const currentCount = events.filter((e) => e.isCompared).length
+      if (currentCount >= 3) {
+        return
+      }
+    }
     setEvents((prev) =>
       prev.map((e) => (e.id === id ? { ...e, isCompared } : e))
     )
   }
+
+  const handleRemoveFromComparison = (id: string) => {
+    setEvents((prev) =>
+      prev.map((e) => (e.id === id ? { ...e, isCompared: false } : e))
+    )
+  }
+
+  const handleClearComparison = () => {
+    setEvents((prev) =>
+      prev.map((e) => (e.isCompared ? { ...e, isCompared: false } : e))
+    )
+  }
+
+  const comparedEvents = useMemo(() => {
+    return events.filter((e) => e.isCompared)
+  }, [events])
 
   const handleMyEventsToggle = (id: string, isInMyEvents: boolean) => {
     setEvents((prev) =>
@@ -194,7 +274,7 @@ export function EventUniverse() {
   }
 
   return (
-    <div className="w-full space-y-4 pb-12">
+    <div className={`w-full space-y-4 ${comparedEvents.length > 0 ? 'pb-24' : 'pb-0'}`}>
       {/* Subtitle Header */}
       <EventUniverseHeader />
 
@@ -247,13 +327,40 @@ export function EventUniverse() {
               <EventGrid
                 events={groupEvents}
                 showEvaluation={activeTab === 'following'}
+                isCompareLimitReached={comparedEvents.length >= 3}
                 onFollowToggle={handleFollowToggle}
                 onCompareToggle={handleCompareToggle}
                 onMyEventsToggle={handleMyEventsToggle}
               />
             </div>
           ))}
+
+          {/* Loading more skeleton cards matching image 3 */}
+          {isLoadingMore && (
+            <div className="w-full pt-1" aria-busy="true" aria-label="Loading more events">
+              <EventGrid isLoading={true} skeletonCount={3} />
+            </div>
+          )}
+
+          {/* Pagination bar with Load More, Loading..., Error/Retry, or End of list states */}
+          <EventPagination
+            visibleCount={visibleCount}
+            totalCount={sortedEvents.length}
+            isLoading={isLoadingMore}
+            onLoadMore={handleLoadMore}
+            error={loadError}
+            onRetry={handleLoadMore}
+          />
         </div>
+      )}
+
+      {/* Floating Comparison Tray */}
+      {comparedEvents.length > 0 && (
+        <EventCompareBar
+          comparedEvents={comparedEvents}
+          onRemoveEvent={handleRemoveFromComparison}
+          onClearAll={handleClearComparison}
+        />
       )}
     </div>
   )
